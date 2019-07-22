@@ -17,6 +17,33 @@ func TestParse(t *testing.T) {
 			"",
 			false,
 		},
+		{
+			"basic",
+			`2012-03-10 KFC
+    Expenses:Food                $20.00
+    Assets:Cash                 $-20.00
+`,
+			false,
+		},
+		{
+			"basic_fail",
+			`2012-03-10 KFC
+Expenses:Food                $20.00
+Assets:Cash                 $-20.00
+`,
+			true,
+		},
+		{
+			"multiple",
+			`2012-03-10 KFC
+    Expenses:Food                $20.00
+    Assets:Cash                 $-20.00
+2012-03-11 KFC
+    Expenses:Food                $20.00
+    Assets:Cash                 $-20.00
+`,
+			false,
+		},
 	}
 
 	for _, test := range parseTests {

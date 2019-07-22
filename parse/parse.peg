@@ -2,6 +2,32 @@
 package parse
 }
 
-DOCUMENT <- EOF
+DOCUMENT <- ENTRY* EOF
+
+ENTRY <- HEADER POSTING+
+
+HEADER <- DATE PAYEE NL
+
+POSTING <- SP _  ACCOUNT _ AMOUNT NL
+
+ACCOUNT <- CHAR+ (":" CHAR+)*
+
+AMOUNT <- "$" "-"? DIGIT+ "." DIGIT DIGIT
+
+DATE <- YEAR "-" MONTH "-" DAY
+
+PAYEE <- CHAR+
+
+CHAR <- [A-Za-z' ]
+
+YEAR <- DIGIT DIGIT DIGIT DIGIT
+MONTH <- DIGIT DIGIT
+DAY <- DIGIT DIGIT
+
+_ "ignored whitespace" <- [ \n\t\r]*
+SP "significant whitespace" <- " "
+NL "newline" <- "\n"
+
+DIGIT <- [0-9]
 
 EOF <- !.
