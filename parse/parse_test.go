@@ -2,7 +2,10 @@ package parse_test
 
 import (
 	"testing"
+	"time"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/timraymond/timtoml/ledger"
 	"github.com/timraymond/timtoml/parse"
 )
 
@@ -10,11 +13,13 @@ func TestParse(t *testing.T) {
 	parseTests := []struct {
 		name      string
 		config    string
+		expTxns   int // the expected number of transactions
 		shouldErr bool
 	}{
 		{
 			"empty",
 			"",
+			0,
 			false,
 		},
 		{
@@ -23,6 +28,7 @@ func TestParse(t *testing.T) {
     Expenses:Food                $20.00
     Assets:Cash                 $-20.00
 `,
+			1,
 			false,
 		},
 		{
@@ -31,6 +37,7 @@ func TestParse(t *testing.T) {
 Expenses:Food                $20.00
 Assets:Cash                 $-20.00
 `,
+			1,
 			true,
 		},
 		{
@@ -42,6 +49,25 @@ Assets:Cash                 $-20.00
     Expenses:Food                $20.00
     Assets:Cash                 $-20.00
 `,
+			2,
+			false,
+		},
+		{
+			"header_state",
+			`2012-03-10 * KFC
+    Expenses:Food                $20.00
+    Assets:Cash                 $-20.00
+`,
+			1,
+			false,
+		},
+		{
+			"posting_state",
+			`2012-03-10  KFC
+    * Expenses:Food                $20.00
+    * Assets:Cash                 $-20.00
+`,
+			1,
 			false,
 		},
 	}
@@ -51,7 +77,7 @@ Assets:Cash                 $-20.00
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
-			_, err := parse.Parse(test.name, []byte(test.config))
+			rawTxns, err := parse.Parse(test.name, []byte(test.config))
 			if err != nil && !test.shouldErr {
 				t.Fatal("Unexpected err:", err)
 			}
@@ -59,6 +85,51 @@ Assets:Cash                 $-20.00
 			if err == nil && test.shouldErr {
 				t.Fatal("Expected an err but received none")
 			}
+
+			if err != nil && test.shouldErr {
+				return
+			}
+
+			txns, ok := rawTxns.([]ledger.TX)
+			if !ok {
+				t.Fatalf("Expected []ledger.TX, but got %T", rawTxns)
+			}
+
+			if len(txns) != test.expTxns {
+				t.Fatalf("Expected %d transactions but received %d", test.expTxns, len(txns))
+			}
 		})
+	}
+}
+
+func TestParse_Details(t *testing.T) {
+	exp := []ledger.TX{
+		{
+			Date:  time.Date(2012, 3, 10, 0, 0, 0, 0, time.UTC),
+			Payee: "KFC",
+			Postings: []ledger.Posting{
+				{
+					Account:  "Expenses:Food",
+					Amount:   2000,
+					Currency: "USD",
+					State:    ledger.StateUncleared,
+				},
+				{
+					Account:  "Assets:Cash",
+					Amount:   -2000,
+					Currency: "USD",
+					State:    ledger.StateUncleared,
+				},
+			},
+		},
+	}
+
+	got, err := parse.ParseFile("./testdata/simple.dat")
+	if err != nil {
+		t.Fatal("Err opening file: err:", err)
+	}
+
+	if !cmp.Equal(exp, got) {
+		t.Error("Parsed file differs: diff:", cmp.Diff(exp, got))
 	}
 }

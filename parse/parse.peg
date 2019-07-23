@@ -2,21 +2,32 @@
 package parse
 }
 
-DOCUMENT <- ENTRY* EOF
+DOCUMENT <- entries:ENTRY* EOF {
+	return newTXs(entries)
+}
 
-ENTRY <- HEADER POSTING+
+ENTRY <- date:DATE state:HEADSTATE? _ payee:PAYEE NL postings:POSTING+ {
+	return newTX(date, state, payee, postings)
+}
 
-HEADER <- DATE PAYEE NL
+HEADSTATE <- SP SIGIL SP
+POSTSTATE <- SIGIL SP
 
-POSTING <- SP _  ACCOUNT _ AMOUNT NL
+SIGIL <- ("*" / "!")
+
+POSTING <- SP _  POSTSTATE? ACCOUNT _ AMOUNT NL
 
 ACCOUNT <- CHAR+ (":" CHAR+)*
 
 AMOUNT <- "$" "-"? DIGIT+ "." DIGIT DIGIT
 
-DATE <- YEAR "-" MONTH "-" DAY
+DATE <- YEAR "-" MONTH "-" DAY {
+	return time.Parse("2006-01-02", string(c.text))
+}
 
-PAYEE <- CHAR+
+PAYEE <- CHAR+ {
+	return string(c.text), nil
+}
 
 CHAR <- [A-Za-z' ]
 
