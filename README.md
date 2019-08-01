@@ -1,6 +1,8 @@
 Ledger
 ======
 
+[![Build Status](https://dev.azure.com/tim0375/tim/_apis/build/status/timraymond.ledger?branchName=master)](https://dev.azure.com/tim0375/tim/_build/latest?definitionId=2&branchName=master)
+
 This is an example of a package for parsing the Ledger plain text accounting
 format (https://www.ledger-cli.org). The parser itself is found in the `parse`
 package and it uses the [Pigeon](github.com/mna/pigeon) [Parsing Expression
