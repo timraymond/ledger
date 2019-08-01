@@ -1,4 +1,4 @@
-module github.com/timraymond/timtoml
+module github.com/timraymond/ledger
 
 go 1.12
 
