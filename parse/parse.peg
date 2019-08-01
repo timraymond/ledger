@@ -11,15 +11,25 @@ ENTRY <- date:DATE state:HEADSTATE? _ payee:PAYEE NL postings:POSTING+ {
 }
 
 HEADSTATE <- SP SIGIL SP
-POSTSTATE <- SIGIL SP
+POSTSTATE <- sig:SIGIL SP {
+  return sig, nil
+}
 
-SIGIL <- ("*" / "!")
+SIGIL <- sig:("*" / "!") {
+  return newState(sig)
+}
 
-POSTING <- SP _  POSTSTATE? ACCOUNT _ AMOUNT NL
+POSTING <- SP _  st:POSTSTATE? act:ACCOUNT _ amt:AMOUNT NL {
+  return newPost(st, act, amt)
+}
 
-ACCOUNT <- CHAR+ (":" CHAR+)*
+ACCOUNT <- CHAR+ (":" CHAR+)* {
+  return string(c.text), nil
+}
 
-AMOUNT <- "$" "-"? DIGIT+ "." DIGIT DIGIT
+AMOUNT <- "$" neg:"-"? units:DIGITS "." cents:CENTS {
+  return newAmount(neg, units, cents)
+}
 
 DATE <- YEAR "-" MONTH "-" DAY {
 	return time.Parse("2006-01-02", string(c.text))
@@ -29,7 +39,14 @@ PAYEE <- CHAR+ {
 	return string(c.text), nil
 }
 
-CHAR <- [A-Za-z' ]
+CHAR <- [A-Za-z']
+DIGITS <- DIGIT+ {
+  return c.text, nil
+}
+
+CENTS <- DIGIT DIGIT {
+  return c.text, nil
+}
 
 YEAR <- DIGIT DIGIT DIGIT DIGIT
 MONTH <- DIGIT DIGIT
