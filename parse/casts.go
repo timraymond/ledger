@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/timraymond/timtoml/ledger"
+	"github.com/timraymond/ledger/ast"
 )
 
 func toII(ii interface{}) ([]interface{}, error) {
@@ -16,10 +16,10 @@ func toII(ii interface{}) ([]interface{}, error) {
 	return out, nil
 }
 
-func toTX(tx interface{}) (ledger.TX, error) {
-	out, ok := tx.(ledger.TX)
+func toTX(tx interface{}) (ast.TX, error) {
+	out, ok := tx.(ast.TX)
 	if !ok {
-		return out, fmt.Errorf("Expected ledger.TX, but got %T", tx)
+		return out, fmt.Errorf("Expected ast.TX, but got %T", tx)
 	}
 	return out, nil
 }
@@ -40,24 +40,24 @@ func toString(str interface{}) (string, error) {
 	return out, nil
 }
 
-func toState(st interface{}) ledger.PostingState {
-	state, ok := st.(ledger.PostingState)
+func toState(st interface{}) ast.PostingState {
+	state, ok := st.(ast.PostingState)
 	if !ok {
-		return ledger.StateUncleared
+		return ast.StateUncleared
 	}
 	return state
 }
 
-func toPostings(psts interface{}) ([]ledger.Posting, error) {
+func toPostings(psts interface{}) ([]ast.Posting, error) {
 	ps, err := toII(psts)
 	if err != nil {
-		return []ledger.Posting{}, errors.Wrap(err, "toII")
+		return []ast.Posting{}, errors.Wrap(err, "toII")
 	}
-	out := make([]ledger.Posting, 0, len(ps))
+	out := make([]ast.Posting, 0, len(ps))
 	for _, p := range ps {
-		post, ok := p.(ledger.Posting)
+		post, ok := p.(ast.Posting)
 		if !ok {
-			return out, fmt.Errorf("Expected ledger.Posting, but got %T", psts)
+			return out, fmt.Errorf("Expected ast.Posting, but got %T", psts)
 		}
 		out = append(out, post)
 	}

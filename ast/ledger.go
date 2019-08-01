@@ -1,4 +1,4 @@
-package ledger
+package ast
 
 import "time"
 

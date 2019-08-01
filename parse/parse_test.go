@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/timraymond/timtoml/ledger"
-	"github.com/timraymond/timtoml/parse"
+	"github.com/timraymond/ledger/ast"
+	"github.com/timraymond/ledger/parse"
 )
 
 func TestParse(t *testing.T) {
@@ -90,9 +90,9 @@ Assets:Cash                 $-20.00
 				return
 			}
 
-			txns, ok := rawTxns.([]ledger.TX)
+			txns, ok := rawTxns.([]ast.TX)
 			if !ok {
-				t.Fatalf("Expected []ledger.TX, but got %T", rawTxns)
+				t.Fatalf("Expected []ast.TX, but got %T", rawTxns)
 			}
 
 			if len(txns) != test.expTxns {
@@ -103,22 +103,22 @@ Assets:Cash                 $-20.00
 }
 
 func TestParse_Details(t *testing.T) {
-	exp := []ledger.TX{
+	exp := []ast.TX{
 		{
 			Date:  time.Date(2012, 3, 10, 0, 0, 0, 0, time.UTC),
 			Payee: "KFC",
-			Postings: []ledger.Posting{
+			Postings: []ast.Posting{
 				{
 					Account:  "Expenses:Food",
 					Amount:   2000,
 					Currency: "USD",
-					State:    ledger.StateUncleared,
+					State:    ast.StateUncleared,
 				},
 				{
 					Account:  "Assets:Cash",
 					Amount:   -2000,
 					Currency: "USD",
-					State:    ledger.StateUncleared,
+					State:    ast.StateUncleared,
 				},
 			},
 		},
