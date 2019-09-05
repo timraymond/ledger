@@ -5,7 +5,7 @@ Ledger
 
 This is an example of a package for parsing the Ledger plain text accounting
 format (https://www.ledger-cli.org). The parser itself is found in the `parse`
-package and it uses the [Pigeon](github.com/mna/pigeon) [Parsing Expression
+package and it uses the [Pigeon](https://github.com/mna/pigeon) [Parsing Expression
 Grammar (PEG)](https://en.wikipedia.org/wiki/Parsing_expression_grammar) parser
 generator. That should be installed using `go get github.com/mna/pigeon` prior
 to running `go generate`. This was written to prepare my lightning talk given
